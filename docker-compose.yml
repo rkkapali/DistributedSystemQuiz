@@ -1,0 +1,60 @@
+version: '3.8'
+services:
+  db:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: quizdb
+      MYSQL_ROOT_PASSWORD: yourpassword
+    volumes:
+      - db-data:/var/lib/mysql
+    networks:
+      - quiz-network
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    healthcheck:
+      test: ["CMD", "rabbitmqctl", "status"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - quiz-network
+  question-app:
+    build: ./question-app
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - quiz-network
+  submit-app:
+    build: ./submit-app
+    ports:
+      - "3001:3001"
+    depends_on:
+      - rabbitmq
+    volumes:
+      - category-cache:/data
+    networks:
+      - quiz-network
+  etl-app:
+    build: ./etl-app
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+      db:
+        condition: service_started
+    networks:
+      - quiz-network
+networks:
+  quiz-network:
+    driver: bridge
+    name: quiz-network
+volumes:
+  db-data:
+  category-cache:
