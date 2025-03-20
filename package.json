@@ -1,0 +1,17 @@
+{
+  "name": "etl-app",
+  "version": "1.0.0",
+  "main": "etl.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "amqplib": "^0.10.5",
+    "dotenv": "^16.4.7",
+    "mysql2": "^3.13.0"
+  }
+}
